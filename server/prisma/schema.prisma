@@ -1,0 +1,95 @@
+// Prisma Schema for 1Fi Product EMI Platform
+// Database: PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id          String           @id @default(uuid())
+  name        String
+  slug        String           @unique
+  brand       String
+  description String?
+  category    String           @default("Smartphones")
+  isNew       Boolean          @default(false)
+  variants    ProductVariant[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([slug])
+}
+
+model ProductVariant {
+  id           String         @id @default(uuid())
+  productId    String
+  product      Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  storage      String         // e.g. "256GB", "512GB", "1TB"
+  colorName    String         // e.g. "Desert Titanium", "Natural Silver", "Space Black"
+  colorHex     String         // e.g. "#C5A98A"
+  mrp          Float          // Maximum Retail Price
+  price        Float          // Selling Price
+  stock        Int            @default(50)
+  isDefault    Boolean        @default(false)
+  images       ProductImage[]
+  emiPlans     EMIPlan[]
+  orders       Order[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@unique([productId, storage, colorName])
+  @@index([productId])
+}
+
+model ProductImage {
+  id        String         @id @default(uuid())
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  url       String
+  altText   String?
+  isPrimary Boolean        @default(false)
+  order     Int            @default(0)
+  createdAt DateTime       @default(now())
+
+  @@index([variantId])
+}
+
+model EMIPlan {
+  id             String         @id @default(uuid())
+  variantId      String
+  variant        ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  tenureMonths   Int            // e.g. 3, 6, 12, 24, 36, 48, 60
+  interestRate   Float          // e.g. 0.0, 10.5
+  monthlyPayment Float          // Pre-computed or verified monthly EMI
+  cashback       Float          @default(0)
+  totalPayable   Float          // Total payment across tenure
+  isPopular      Boolean        @default(false)
+  createdAt      DateTime       @default(now())
+
+  @@index([variantId])
+  @@index([tenureMonths])
+}
+
+model Order {
+  id             String         @id @default(uuid())
+  orderNumber    String         @unique
+  variantId      String
+  variant        ProductVariant @relation(fields: [variantId], references: [id])
+  tenureMonths   Int
+  monthlyPayment Float
+  interestRate   Float
+  cashback       Float
+  totalPayable   Float
+  customerName   String
+  customerPhone  String
+  customerEmail  String
+  status         String         @default("CONFIRMED")
+  createdAt      DateTime       @default(now())
+
+  @@index([orderNumber])
+}

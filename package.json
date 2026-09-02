@@ -1,0 +1,41 @@
+{
+  "name": "1fi-product-emi-platform",
+  "version": "1.0.0",
+  "description": "1Fi SDE1 Assignment – Production Product EMI Platform backed by Mutual Funds",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "install:all": "npm install && npm install --prefix server && npm install --prefix client",
+    "dev": "concurrently -n \"SERVER,CLIENT\" -c \"bgBlue.bold,bgGreen.bold\" \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "build": "npm run build --prefix server && npm run build --prefix client",
+    "test": "npm run test --prefix server",
+    "db:generate": "npm run prisma:generate --prefix server",
+    "db:migrate": "npm run prisma:migrate --prefix server",
+    "db:seed": "npm run db:seed --prefix server",
+    "start": "npm run start --prefix server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "sharp": "^0.35.4"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "^4.27.0"
+  },
+  "keywords": [
+    "1fi",
+    "emi",
+    "fintech",
+    "mutual-funds",
+    "react",
+    "express",
+    "prisma",
+    "postgresql",
+    "typescript",
+    "tailwind"
+  ],
+  "author": "Himanshu Upadhyay",
+  "license": "ISC"
+}
